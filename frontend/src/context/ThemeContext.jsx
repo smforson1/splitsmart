@@ -5,20 +5,30 @@ const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
-    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // Default to light mode if nothing is saved
+    if (saved === 'dark') return true;
+    if (saved === 'light') return false;
+    // If no preference saved, default to light mode
+    return false;
   });
 
   useEffect(() => {
+    const root = document.documentElement;
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
+      console.log('Dark mode enabled');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
+      console.log('Light mode enabled');
     }
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark(!isDark);
+  const toggleTheme = () => {
+    console.log('Toggling theme from', isDark ? 'dark' : 'light', 'to', isDark ? 'light' : 'dark');
+    setIsDark(!isDark);
+  };
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
