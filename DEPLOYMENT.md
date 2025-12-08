@@ -23,7 +23,16 @@ This guide will walk you through deploying SplitSmart to Vercel (both frontend a
 10. Copy the "Project URL" and "anon/public" key
 11. Save these for later - you'll need them for backend and frontend
 
-## Step 2: Backend Deployment (Vercel)
+## Step 2: Backend Deployment (Render - Recommended)
+
+**Why Render instead of Vercel for backend?**
+- Traditional Express apps work better on Render
+- No cold starts or serverless limitations
+- Better database connection handling
+- File uploads (receipt scanning) work perfectly
+- Free tier available
+
+**Steps:**
 
 1. Push your code to GitHub if you haven't already:
 ```bash
@@ -32,32 +41,31 @@ git commit -m "Prepare for deployment"
 git push origin main
 ```
 
-2. Go to https://vercel.com and sign up/login
-3. Click **"Add New..."** → **"Project"**
-4. Import your GitHub repository (`splitsmart`)
-5. Configure the backend project:
-   - **Project Name**: `splitsmart-api` (or your preferred name)
-   - **Framework Preset**: Other
-   - **Root Directory**: Click **"Edit"** and select `backend`
-   - **Build Command**: Leave empty
-   - **Output Directory**: Leave empty
-   - **Install Command**: `npm install`
+2. Go to https://render.com and sign up/login
+3. Click **"New +"** → **"Web Service"**
+4. Connect your GitHub repository (`splitsmart`)
+5. Configure the service:
+   - **Name**: `splitsmart-api`
+   - **Root Directory**: `backend`
+   - **Environment**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Plan**: Free
 
-6. Add Environment Variables (click "Environment Variables"):
+6. Add Environment Variables:
    - `DATABASE_URL`: Your Supabase connection string
-   - `SUPABASE_URL`: Your Supabase project URL
+   - `SUPABASE_URL`: Your Supabase project URL  
    - `SUPABASE_ANON_KEY`: Your Supabase anon/public key
    - `OPENAI_API_KEY`: Your OpenAI API key
    - `PORT`: 3000
-   - `NODE_ENV`: production
 
-7. Click **"Deploy"**
-8. Wait for deployment to complete (2-3 minutes)
-9. Copy your backend URL (e.g., `https://splitsmart-api.vercel.app`)
+7. Click **"Create Web Service"**
+8. Wait for deployment to complete (3-5 minutes)
+9. Copy your backend URL (e.g., `https://splitsmart-api.onrender.com`)
 
 ### Test Backend
 
-Visit: `https://your-backend-url.vercel.app/health`
+Visit: `https://your-backend-url.onrender.com/health`
 
 You should see:
 ```json
@@ -66,6 +74,8 @@ You should see:
   "message": "SplitSmart API is running"
 }
 ```
+
+**Note:** Render free tier may spin down after inactivity. First request after inactivity takes ~30 seconds to wake up.
 
 ## Step 3: Frontend Deployment (Vercel)
 
@@ -180,19 +190,18 @@ The backend already has CORS enabled. If you still get CORS errors:
 
 ## Environment Variables Summary
 
-### Backend Environment Variables (Vercel)
+### Backend Environment Variables (Render)
 ```
 DATABASE_URL=postgresql://user:password@host:port/database
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your_supabase_anon_key
 OPENAI_API_KEY=sk-...
 PORT=3000
-NODE_ENV=production
 ```
 
 ### Frontend Environment Variables (Vercel)
 ```
-VITE_API_URL=https://splitsmart-api.vercel.app
+VITE_API_URL=https://splitsmart-api.onrender.com
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
@@ -201,22 +210,21 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## Monitoring
 
-### Backend Logs (Vercel)
-1. Go to Vercel dashboard
-2. Click on your backend project (`splitsmart-api`)
-3. Click on a deployment
-4. Click **"Functions"** tab
-5. View real-time logs and function executions
+### Backend Logs (Render)
+1. Go to Render dashboard
+2. Click on your service (`splitsmart-api`)
+3. Click **"Logs"** tab
+4. View real-time logs
 
 ### Frontend Logs (Vercel)
 1. Go to Vercel dashboard
-2. Click on your frontend project (`splitsmart`)
+2. Click on your project (`splitsmart`)
 3. Click on a deployment
-4. View build logs and runtime logs
+4. View build logs
 
 ## Updating the App
 
-Vercel automatically deploys when you push to GitHub:
+Both Render and Vercel automatically deploy when you push to GitHub:
 
 ```bash
 git add .
@@ -224,13 +232,15 @@ git commit -m "Your update message"
 git push origin main
 ```
 
-Both backend and frontend will automatically redeploy!
+- **Backend (Render)** will automatically redeploy
+- **Frontend (Vercel)** will automatically redeploy
 
 ### Preview Deployments
 
-- **Push to `main` branch** → Deploys to production
-- **Push to other branches** → Creates preview deployments
-- **Pull requests** → Creates preview deployments with unique URLs
+**Vercel (Frontend):**
+- Push to `main` → Production
+- Push to other branches → Preview deployments
+- Pull requests → Preview URLs
 
 ## Cost Considerations
 
@@ -302,14 +312,20 @@ Perfect for personal projects and small teams!
 4. Update frontend `VITE_API_URL` environment variable
 5. Redeploy frontend
 
-## Why Vercel for Backend?
+## Why Render for Backend + Vercel for Frontend?
 
-✅ **Same platform** - Manage both frontend and backend in one place
-✅ **Automatic deployments** - Push to GitHub and both deploy
-✅ **Serverless** - Auto-scales, no server management
-✅ **Free tier** - Generous limits for small projects
-✅ **Fast** - Edge network for low latency
-✅ **Easy setup** - No complex configuration needed
+**Render (Backend):**
+✅ **Traditional server** - Better for Express apps
+✅ **No cold starts** - Always responsive
+✅ **Database connections** - Proper connection pooling
+✅ **File uploads** - Works perfectly with Multer
+✅ **Free tier** - 750 hours/month
+
+**Vercel (Frontend):**
+✅ **Optimized for React/Vite** - Fast builds and deploys
+✅ **Edge network** - Global CDN
+✅ **Preview deployments** - Test before merging
+✅ **Free tier** - Unlimited deployments
 
 ## Support
 
