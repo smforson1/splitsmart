@@ -120,88 +120,132 @@ You should see:
 
 ## Troubleshooting
 
-### CORS Errors
-If you get CORS errors, make sure your backend `server.js` has:
-```javascript
-app.use(cors());
-```
+### Backend Issues
 
-For production, you can restrict to your frontend domain:
-```javascript
-app.use(cors({
-  origin: 'https://your-frontend.vercel.app'
-}));
-```
+**"Function execution timed out"**
+- Vercel serverless functions have a 10-second timeout on free plan
+- Check database connection speed
+- Optimize slow queries
+- Consider upgrading to Pro plan for 60-second timeout
 
-### Database Connection Issues
-- Verify your DATABASE_URL is correct
-- Make sure SSL is enabled in the connection string
-- Check Supabase project is active
+**"Module not found" errors**
+- Make sure all dependencies are in `package.json`
+- Check that `node_modules` is in `.gitignore`
+- Redeploy to trigger fresh install
 
-### OpenAI API Errors
-- Verify your API key is correct
-- Check you have credits remaining
-- Ensure the model name is correct (`gpt-4o`)
+**Database connection errors**
+- Verify `DATABASE_URL` is correct
+- Check Supabase connection pooler settings
+- Use the "Transaction" mode connection string
+- Ensure SSL is enabled
+
+### Frontend Issues
+
+**"Failed to fetch" errors**
+- Check that `VITE_API_URL` points to your backend URL
+- Verify backend is deployed and running
+- Check browser console for CORS errors
+- Test backend `/health` endpoint
+
+**Authentication not working**
+- Verify Supabase URL and anon key are correct
+- Check that Site URL is updated in Supabase
+- Clear browser cache and try again
+- Check browser console for errors
+
+**Google OAuth redirect issues**
+- Update Google OAuth authorized origins
+- Update Supabase redirect URLs
+- Check for typos in URLs
+
+### CORS Issues
+
+The backend already has CORS enabled. If you still get CORS errors:
+- Verify backend is deployed successfully
+- Check that frontend is using correct backend URL
+- Clear browser cache
+- Check for typos in environment variables
 
 ### Build Failures
-- Check all dependencies are in package.json
-- Verify Node.js version compatibility
-- Check build logs for specific errors
+
+**Backend build fails:**
+- Check all dependencies are in `package.json`
+- Verify `vercel.json` is in the backend folder
+- Check Vercel build logs for specific errors
+
+**Frontend build fails:**
+- Check all dependencies are in `package.json`
+- Verify environment variables are set
+- Check Vercel build logs for specific errors
 
 ## Environment Variables Summary
 
-### Backend (.env)
+### Backend Environment Variables (Vercel)
 ```
 DATABASE_URL=postgresql://user:password@host:port/database
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your_supabase_anon_key
 OPENAI_API_KEY=sk-...
 PORT=3000
+NODE_ENV=production
 ```
 
-### Frontend (.env)
+### Frontend Environment Variables (Vercel)
 ```
-VITE_API_URL=https://your-backend.onrender.com
+VITE_API_URL=https://splitsmart-api.vercel.app
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
+**Note:** Replace URLs with your actual deployment URLs!
+
 ## Monitoring
 
-### Backend Logs
-- Go to Render dashboard
-- Click on your service
-- View "Logs" tab
+### Backend Logs (Vercel)
+1. Go to Vercel dashboard
+2. Click on your backend project (`splitsmart-api`)
+3. Click on a deployment
+4. Click **"Functions"** tab
+5. View real-time logs and function executions
 
-### Frontend Logs
-- Go to Vercel dashboard
-- Click on your project
-- View "Deployments" → Click deployment → "Functions" tab
+### Frontend Logs (Vercel)
+1. Go to Vercel dashboard
+2. Click on your frontend project (`splitsmart`)
+3. Click on a deployment
+4. View build logs and runtime logs
 
 ## Updating the App
 
-### Backend Updates
-```bash
-git add .
-git commit -m "Update backend"
-git push
-```
-Render will automatically redeploy.
+Vercel automatically deploys when you push to GitHub:
 
-### Frontend Updates
 ```bash
 git add .
-git commit -m "Update frontend"
-git push
+git commit -m "Your update message"
+git push origin main
 ```
-Vercel will automatically redeploy.
+
+Both backend and frontend will automatically redeploy!
+
+### Preview Deployments
+
+- **Push to `main` branch** → Deploys to production
+- **Push to other branches** → Creates preview deployments
+- **Pull requests** → Creates preview deployments with unique URLs
 
 ## Cost Considerations
 
+### Vercel Free Tier Includes
+- ✅ Unlimited deployments
+- ✅ 100GB bandwidth per month
+- ✅ Serverless function execution (100GB-hours)
+- ✅ Automatic HTTPS
+- ✅ Preview deployments
+- ✅ Custom domains
+- ✅ Analytics
+
 ### Free Tier Limits
 - **Supabase**: 500MB database, unlimited API requests
-- **Render**: 750 hours/month (enough for 1 service)
-- **Vercel**: Unlimited deployments, 100GB bandwidth
+- **Vercel**: 100GB bandwidth, serverless functions
 - **OpenAI**: Pay per use (~$0.01 per receipt scan)
 
 ### Estimated Monthly Cost
@@ -211,6 +255,8 @@ Vercel will automatically redeploy.
 - OpenAI: ~$1-5 depending on usage
 
 **Total: $1-5/month** for moderate usage
+
+Perfect for personal projects and small teams!
 
 ## Security Best Practices
 
@@ -237,12 +283,41 @@ Vercel will automatically redeploy.
 3. Export important data periodically
 4. Document your schema and migrations
 
+## Custom Domains (Optional)
+
+### Add Custom Domain to Frontend
+
+1. Go to your frontend project in Vercel
+2. Click **"Settings"** → **"Domains"**
+3. Add your custom domain (e.g., `splitsmart.com`)
+4. Follow DNS configuration instructions
+5. Update Supabase Site URL to your custom domain
+6. Update Google OAuth authorized origins
+
+### Add Custom Domain to Backend
+
+1. Go to your backend project in Vercel
+2. Click **"Settings"** → **"Domains"**
+3. Add your API subdomain (e.g., `api.splitsmart.com`)
+4. Update frontend `VITE_API_URL` environment variable
+5. Redeploy frontend
+
+## Why Vercel for Backend?
+
+✅ **Same platform** - Manage both frontend and backend in one place
+✅ **Automatic deployments** - Push to GitHub and both deploy
+✅ **Serverless** - Auto-scales, no server management
+✅ **Free tier** - Generous limits for small projects
+✅ **Fast** - Edge network for low latency
+✅ **Easy setup** - No complex configuration needed
+
 ## Support
 
 If you encounter issues:
-1. Check the logs (Render/Vercel dashboards)
+1. Check the logs in Vercel dashboard
 2. Verify environment variables are set correctly
-3. Test API endpoints with Postman/Thunder Client
-4. Check database connection with Supabase dashboard
+3. Test API endpoints: `https://your-backend.vercel.app/health`
+4. Check database connection in Supabase dashboard
+5. Review browser console for frontend errors
 
 Good luck with your deployment! 🚀
