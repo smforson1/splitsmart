@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { groupsApi } from '../api/groups';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import GroupCard from '../components/GroupCard';
 import ThemeToggle from '../components/ThemeToggle';
@@ -11,6 +12,17 @@ export default function HomePage() {
   const [showModal, setShowModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success('Signed out successfully');
+      navigate('/login');
+    } catch (error) {
+      toast.error('Failed to sign out');
+    }
+  };
 
   useEffect(() => {
     fetchGroups();
@@ -77,7 +89,20 @@ export default function HomePage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <div className="text-right mr-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Signed in as</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.email}</p>
+            </div>
             <ThemeToggle />
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              title="Sign out"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
             <button
               onClick={() => setShowModal(true)}
               className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"

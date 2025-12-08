@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { authenticateToken } = require('../middleware/auth');
 
 // GET /api/balances/:groupId - Calculate balances with debt simplification
-router.get('/:groupId', async (req, res) => {
+router.get('/:groupId', authenticateToken, async (req, res) => {
   try {
     const { groupId } = req.params;
 

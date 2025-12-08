@@ -1,19 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { authenticateToken } = require('../middleware/auth');
 
 // POST /api/groups - Create new group
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { name } = req.body;
+    const userId = req.user.id;
     
     if (!name || name.trim() === '') {
       return res.status(400).json({ error: 'Group name is required' });
     }
 
     const result = await db.query(
-      'INSERT INTO groups (name) VALUES ($1) RETURNING *',
-      [name.trim()]
+      'INSERT INTO groups (name, created_by_user_id) VALUES ($1, $2) RETURNING *',
+      [name.trim(), userId]
+    );
+
+    const groupId = result.rows[0].id;
+
+    // Add creator as admin member
+    await db.query(
+      'INSERT INTO group_members (group_id, user_id, role) VALUES ($1, $2, $3)',
+      [groupId, userId, 'admin']
     );
 
     res.status(201).json(result.rows[0]);
@@ -23,21 +33,26 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/groups - Get all groups with member count
-router.get('/', async (req, res) => {
+// GET /api/groups - Get all groups for current user
+router.get('/', authenticateToken, async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const result = await db.query(`
       SELECT 
         g.id, 
         g.name, 
         g.created_at,
         g.updated_at,
-        COUNT(m.id)::int as member_count
+        COUNT(DISTINCT m.id)::int as member_count,
+        gm.role
       FROM groups g
+      INNER JOIN group_members gm ON g.id = gm.group_id
       LEFT JOIN members m ON g.id = m.group_id
-      GROUP BY g.id
+      WHERE gm.user_id = $1
+      GROUP BY g.id, gm.role
       ORDER BY g.created_at DESC
-    `);
+    `, [userId]);
 
     res.json(result.rows);
   } catch (error) {
@@ -47,9 +62,20 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/groups/:id - Get group details with members
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
+
+    // Check if user has access to this group
+    const accessCheck = await db.query(
+      'SELECT role FROM group_members WHERE group_id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (accessCheck.rows.length === 0) {
+      return res.status(403).json({ error: 'Access denied to this group' });
+    }
 
     // Get group details
     const groupResult = await db.query(
@@ -69,6 +95,7 @@ router.get('/:id', async (req, res) => {
 
     const group = groupResult.rows[0];
     group.members = membersResult.rows;
+    group.userRole = accessCheck.rows[0].role;
 
     res.json(group);
   } catch (error) {
@@ -78,13 +105,24 @@ router.get('/:id', async (req, res) => {
 });
 
 // PUT /api/groups/:id - Update group name
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
+    const userId = req.user.id;
 
     if (!name || name.trim() === '') {
       return res.status(400).json({ error: 'Group name is required' });
+    }
+
+    // Check if user is admin
+    const accessCheck = await db.query(
+      'SELECT role FROM group_members WHERE group_id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (accessCheck.rows.length === 0 || accessCheck.rows[0].role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can update group details' });
     }
 
     const result = await db.query(
@@ -104,23 +142,24 @@ router.put('/:id', async (req, res) => {
 });
 
 // POST /api/groups/:id/members - Add member to group
-router.post('/:id/members', async (req, res) => {
+router.post('/:id/members', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
+    const userId = req.user.id;
 
     if (!name || name.trim() === '') {
       return res.status(400).json({ error: 'Member name is required' });
     }
 
-    // Check if group exists
-    const groupCheck = await db.query(
-      'SELECT id FROM groups WHERE id = $1',
-      [id]
+    // Check if user has access to this group
+    const accessCheck = await db.query(
+      'SELECT id FROM group_members WHERE group_id = $1 AND user_id = $2',
+      [id, userId]
     );
 
-    if (groupCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Group not found' });
+    if (accessCheck.rows.length === 0) {
+      return res.status(403).json({ error: 'Access denied to this group' });
     }
 
     const result = await db.query(
@@ -136,9 +175,20 @@ router.post('/:id/members', async (req, res) => {
 });
 
 // DELETE /api/groups/:id - Delete group (cascade)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
+
+    // Check if user is admin
+    const accessCheck = await db.query(
+      'SELECT role FROM group_members WHERE group_id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (accessCheck.rows.length === 0 || accessCheck.rows[0].role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can delete groups' });
+    }
 
     const result = await db.query(
       'DELETE FROM groups WHERE id = $1 RETURNING id',

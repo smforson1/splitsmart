@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { authenticateToken } = require('../middleware/auth');
 
 // POST /api/expenses - Create expense with splits
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   const client = await db.pool.connect();
   
   try {
@@ -103,7 +104,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/expenses - Get expenses with filters
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const { groupId, category, startDate, endDate } = req.query;
 
@@ -154,7 +155,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/expenses/:id - Get single expense details
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -183,7 +184,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // PUT /api/expenses/:id - Update expense
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   const client = await db.pool.connect();
   
   try {
@@ -262,7 +263,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/expenses/:id - Delete expense
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 

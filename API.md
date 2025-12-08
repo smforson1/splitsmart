@@ -3,7 +3,97 @@
 Base URL: `http://localhost:3000` (development) or your deployed backend URL
 
 ## Authentication
-Currently, no authentication is required. All endpoints are public.
+
+All API endpoints (except auth endpoints) require authentication using JWT tokens from Supabase Auth.
+
+**Headers Required:**
+```
+Authorization: Bearer <access_token>
+```
+
+### Sign Up
+**POST** `/api/auth/signup`
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "name": "John Doe"
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "message": "User created successfully",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com"
+  },
+  "session": {
+    "access_token": "jwt_token",
+    "refresh_token": "refresh_token"
+  }
+}
+```
+
+### Sign In
+**POST** `/api/auth/signin`
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Signed in successfully",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com"
+  },
+  "session": {
+    "access_token": "jwt_token",
+    "refresh_token": "refresh_token"
+  }
+}
+```
+
+### Sign Out
+**POST** `/api/auth/signout`
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Signed out successfully"
+}
+```
+
+### Get Current User
+**GET** `/api/auth/me`
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response:** `200 OK`
+```json
+{
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "user_metadata": {
+      "name": "John Doe"
+    }
+  }
+}
+```
 
 ---
 
@@ -39,11 +129,14 @@ Currently, no authentication is required. All endpoints are public.
     "id": "uuid",
     "name": "Roommates",
     "member_count": 3,
+    "role": "admin",
     "created_at": "2024-12-08T10:00:00.000Z",
     "updated_at": "2024-12-08T10:00:00.000Z"
   }
 ]
 ```
+
+**Note:** Only returns groups the authenticated user has access to.
 
 ### Get Group Details
 **GET** `/api/groups/:id`
@@ -305,6 +398,20 @@ All endpoints may return these error responses:
 ```json
 {
   "error": "Descriptive error message"
+}
+```
+
+**401 Unauthorized**
+```json
+{
+  "error": "Access token required"
+}
+```
+
+**403 Forbidden**
+```json
+{
+  "error": "Access denied to this resource"
 }
 ```
 

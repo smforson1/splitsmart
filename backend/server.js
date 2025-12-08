@@ -11,6 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Import routes
+const authRouter = require('./routes/auth');
 const groupsRouter = require('./routes/groups');
 const membersRouter = require('./routes/members');
 const expensesRouter = require('./routes/expenses');
@@ -24,6 +25,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', authRouter);
 app.use('/api/groups', groupsRouter);
 app.use('/api/members', membersRouter);
 app.use('/api/expenses', expensesRouter);

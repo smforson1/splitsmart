@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { authenticateToken } = require('../middleware/auth');
 
 // POST /api/settlements - Record a settlement/payment
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
       group_id,
@@ -41,7 +42,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/settlements - Get settlements for a group
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const { groupId } = req.query;
 
