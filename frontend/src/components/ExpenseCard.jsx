@@ -36,45 +36,45 @@ export default function ExpenseCard({ expense }) {
   return (
     <div
       onClick={() => navigate(`/expenses/${expense.id}`)}
-      className="group border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-gray-800 hover:scale-[1.02] hover:-translate-y-1"
+      className="group border border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-5 hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-gray-800 hover:scale-[1.02] hover:-translate-y-1"
     >
-      <div className="flex justify-between items-start gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-2">
-            <div className={`p-2 rounded-lg ${config.bg}`}>
-              <svg className={`w-5 h-5 ${config.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0 w-full">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <div className={`p-1.5 sm:p-2 rounded-lg ${config.bg} flex-shrink-0`}>
+              <svg className={`w-4 h-4 sm:w-5 sm:h-5 ${config.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={config.icon} />
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {expense.description}
               </h3>
-              <span className={`inline-block text-xs px-2 py-1 rounded-full ${config.bg} ${config.text} font-medium mt-1`}>
+              <span className={`inline-block text-xs px-2 py-0.5 sm:py-1 rounded-full ${config.bg} ${config.text} font-medium mt-1`}>
                 {expense.category}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-4 mt-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 sm:mt-3 text-xs sm:text-sm">
             <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <span className="truncate">{expense.paid_by?.name || 'Unknown'}</span>
             </div>
-            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-500 text-xs">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-500">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>{new Date(expense.date).toLocaleDateString()}</span>
+              <span className="whitespace-nowrap">{new Date(expense.date).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+        <div className="text-left sm:text-right flex-shrink-0 w-full sm:w-auto flex sm:flex-col justify-between sm:justify-start items-center sm:items-end">
+          <p className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
             ${parseFloat(expense.amount).toFixed(2)}
           </p>
-          <div className="flex items-center justify-end gap-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-1">
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>

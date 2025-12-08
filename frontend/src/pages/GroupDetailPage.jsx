@@ -153,15 +153,15 @@ export default function GroupDetailPage() {
           Back to Groups
         </button>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 animate-slide-up">
-          <div className="flex justify-between items-start">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6 animate-slide-up">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">{group.members.length} members</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm sm:text-base">{group.members.length} members</p>
             </div>
             <button
               onClick={handleDeleteGroup}
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm transition-colors"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm transition-colors self-end sm:self-auto"
             >
               Delete Group
             </button>
@@ -177,13 +177,13 @@ export default function GroupDetailPage() {
                 + Add Member
               </button>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
               {group.members.map((member) => (
-                <div key={member.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-                  <span className="text-sm text-gray-900 dark:text-white">{member.name}</span>
+                <div key={member.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-2 sm:p-3 border border-gray-200 dark:border-gray-600">
+                  <span className="text-xs sm:text-sm text-gray-900 dark:text-white truncate mr-2">{member.name}</span>
                   <button
                     onClick={() => handleRemoveMember(member.id)}
-                    className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-xs transition-colors"
+                    className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-lg sm:text-xl transition-colors flex-shrink-0"
                   >
                     ×
                   </button>
@@ -199,34 +199,34 @@ export default function GroupDetailPage() {
 
         {expenses.length > 0 && <ExpenseFilters onFilterChange={setFilters} />}
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Expenses</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Expenses</h2>
               {filteredExpenses.length !== expenses.length && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Showing {filteredExpenses.length} of {expenses.length} expenses
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
               {expenses.length > 0 && (
                 <button
                   onClick={handleExportExpenses}
-                  className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 font-medium flex items-center gap-2"
+                  className="flex-1 sm:flex-none bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 font-medium flex items-center justify-center gap-2 text-sm"
                   title="Export to CSV"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Export
+                  <span className="hidden sm:inline">Export</span>
                 </button>
               )}
               <button
                 onClick={() => navigate(`/groups/${id}/add-expense`)}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium flex items-center gap-2"
+                className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium flex items-center justify-center gap-2 text-sm"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Add Expense

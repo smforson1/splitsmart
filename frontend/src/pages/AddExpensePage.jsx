@@ -225,7 +225,7 @@ export default function AddExpensePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Date *
@@ -264,7 +264,7 @@ export default function AddExpensePage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Split Type
                   </label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <label className="flex items-center text-gray-900 dark:text-white cursor-pointer">
                       <input
                         type="radio"
