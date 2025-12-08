@@ -103,6 +103,38 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// POST /api/groups/:id/members - Add member to group
+router.post('/:id/members', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ error: 'Member name is required' });
+    }
+
+    // Check if group exists
+    const groupCheck = await db.query(
+      'SELECT id FROM groups WHERE id = $1',
+      [id]
+    );
+
+    if (groupCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    const result = await db.query(
+      'INSERT INTO members (group_id, name) VALUES ($1, $2) RETURNING *',
+      [id, name.trim()]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding member:', error);
+    res.status(500).json({ error: 'Failed to add member' });
+  }
+});
+
 // DELETE /api/groups/:id - Delete group (cascade)
 router.delete('/:id', async (req, res) => {
   try {
