@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { groupsApi, membersApi, expensesApi, balancesApi } from '../api/groups';
 import toast from 'react-hot-toast';
 import BalanceSummary from '../components/BalanceSummary';
 import ExpenseCard from '../components/ExpenseCard';
 import SettlementModal from '../components/SettlementModal';
+import ExpenseFilters from '../components/ExpenseFilters';
+import ExpenseStatistics from '../components/ExpenseStatistics';
+import { exportExpensesToCSV, exportBalancesToCSV } from '../utils/exportCSV';
 
 export default function GroupDetailPage() {
   const { id } = useParams();
@@ -16,6 +19,7 @@ export default function GroupDetailPage() {
   const [showAddMember, setShowAddMember] = useState(false);
   const [newMemberName, setNewMemberName] = useState('');
   const [showSettlement, setShowSettlement] = useState(false);
+  const [filters, setFilters] = useState({ search: '', category: '', startDate: '', endDate: '' });
 
   useEffect(() => {
     fetchGroupData();
@@ -38,6 +42,29 @@ export default function GroupDetailPage() {
       setLoading(false);
     }
   };
+
+  // Filter expenses based on search and filters
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter(expense => {
+      // Search filter
+      if (filters.search && !expense.description.toLowerCase().includes(filters.search.toLowerCase())) {
+        return false;
+      }
+      // Category filter
+      if (filters.category && expense.category !== filters.category) {
+        return false;
+      }
+      // Start date filter
+      if (filters.startDate && new Date(expense.date) < new Date(filters.startDate)) {
+        return false;
+      }
+      // End date filter
+      if (filters.endDate && new Date(expense.date) > new Date(filters.endDate)) {
+        return false;
+      }
+      return true;
+    });
+  }, [expenses, filters]);
 
   const handleAddMember = async (e) => {
     e.preventDefault();
@@ -79,6 +106,24 @@ export default function GroupDetailPage() {
     } catch (error) {
       toast.error('Failed to delete group');
     }
+  };
+
+  const handleExportExpenses = () => {
+    if (filteredExpenses.length === 0) {
+      toast.error('No expenses to export');
+      return;
+    }
+    exportExpensesToCSV(filteredExpenses, group.name);
+    toast.success('Expenses exported to CSV!');
+  };
+
+  const handleExportBalances = () => {
+    if (!balances || balances.simplified_debts.length === 0) {
+      toast.error('No balances to export');
+      return;
+    }
+    exportBalancesToCSV(balances, group.name);
+    toast.success('Balances exported to CSV!');
   };
 
   if (loading) {
@@ -142,26 +187,66 @@ export default function GroupDetailPage() {
           </div>
         </div>
 
-        {balances && <BalanceSummary balances={balances} onSettle={() => setShowSettlement(true)} />}
+        {expenses.length > 0 && <ExpenseStatistics expenses={expenses} members={group.members} />}
 
-        <div className="bg-white rounded-lg shadow p-6">
+        {balances && <BalanceSummary balances={balances} onSettle={() => setShowSettlement(true)} onExport={handleExportBalances} />}
+
+        {expenses.length > 0 && <ExpenseFilters onFilterChange={setFilters} />}
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Expenses</h2>
-            <button
-              onClick={() => navigate(`/groups/${id}/add-expense`)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              + Add Expense
-            </button>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Expenses</h2>
+              {filteredExpenses.length !== expenses.length && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Showing {filteredExpenses.length} of {expenses.length} expenses
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              {expenses.length > 0 && (
+                <button
+                  onClick={handleExportExpenses}
+                  className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 font-medium flex items-center gap-2"
+                  title="Export to CSV"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Export
+                </button>
+              )}
+              <button
+                onClick={() => navigate(`/groups/${id}/add-expense`)}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Expense
+              </button>
+            </div>
           </div>
 
           {expenses.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p>No expenses yet. Add your first expense!</p>
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p className="text-lg font-medium">No expenses yet</p>
+              <p className="text-sm mt-1">Add your first expense to get started!</p>
+            </div>
+          ) : filteredExpenses.length === 0 ? (
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <p className="text-lg font-medium">No expenses match your filters</p>
+              <p className="text-sm mt-1">Try adjusting your search criteria</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {expenses.map((expense) => (
+              {filteredExpenses.map((expense) => (
                 <ExpenseCard key={expense.id} expense={expense} onUpdate={fetchGroupData} />
               ))}
             </div>
