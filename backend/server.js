@@ -33,6 +33,12 @@ app.use('/api/balances', balancesRouter);
 app.use('/api/settlements', settlementsRouter);
 app.use('/api/expenses/scan', scanRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
