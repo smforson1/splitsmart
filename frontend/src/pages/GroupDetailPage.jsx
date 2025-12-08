@@ -128,18 +128,24 @@ export default function GroupDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center transition-colors duration-200">
+        <div className="text-center animate-fade-in">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 dark:border-blue-900 mx-auto"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 dark:border-blue-400 mx-auto absolute top-0 left-1/2 -translate-x-1/2"></div>
+          </div>
+          <p className="mt-6 text-gray-600 dark:text-gray-300 font-medium">Loading group...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
           onClick={() => navigate('/')}
-          className="text-blue-600 hover:text-blue-700 mb-4 flex items-center"
+          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 flex items-center transition-colors"
         >
           <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -147,15 +153,15 @@ export default function GroupDetailPage() {
           Back to Groups
         </button>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 animate-slide-up">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{group.name}</h1>
-              <p className="text-gray-600 mt-1">{group.members.length} members</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">{group.members.length} members</p>
             </div>
             <button
               onClick={handleDeleteGroup}
-              className="text-red-600 hover:text-red-700 text-sm"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm transition-colors"
             >
               Delete Group
             </button>
@@ -163,21 +169,21 @@ export default function GroupDetailPage() {
 
           <div className="mt-6">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-semibold">Members</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Members</h2>
               <button
                 onClick={() => setShowAddMember(true)}
-                className="text-blue-600 hover:text-blue-700 text-sm"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm transition-colors"
               >
                 + Add Member
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {group.members.map((member) => (
-                <div key={member.id} className="flex items-center justify-between bg-gray-50 rounded p-3">
-                  <span className="text-sm">{member.name}</span>
+                <div key={member.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                  <span className="text-sm text-gray-900 dark:text-white">{member.name}</span>
                   <button
                     onClick={() => handleRemoveMember(member.id)}
-                    className="text-red-500 hover:text-red-700 text-xs"
+                    className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-xs transition-colors"
                   >
                     ×
                   </button>
@@ -255,32 +261,44 @@ export default function GroupDetailPage() {
       </div>
 
       {showAddMember && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Add Member</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fade-in backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl animate-scale-in border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Add Member</h2>
+            </div>
             <form onSubmit={handleAddMember}>
-              <input
-                type="text"
-                value={newMemberName}
-                onChange={(e) => setNewMemberName(e.target.value)}
-                placeholder="Enter member name"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                autoFocus
-              />
-              <div className="flex gap-3 mt-4">
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Member Name
+                </label>
+                <input
+                  type="text"
+                  value={newMemberName}
+                  onChange={(e) => setNewMemberName(e.target.value)}
+                  placeholder="Enter member name"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setShowAddMember(false);
                     setNewMemberName('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium"
                 >
                   Add
                 </button>
