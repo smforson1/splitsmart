@@ -120,18 +120,24 @@ export default function AddExpensePage() {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center transition-colors duration-200">
+        <div className="text-center animate-fade-in">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 dark:border-blue-900 mx-auto"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 dark:border-blue-400 mx-auto absolute top-0 left-1/2 -translate-x-1/2"></div>
+          </div>
+          <p className="mt-6 text-gray-600 dark:text-gray-300 font-medium">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-200">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
           onClick={() => navigate(`/groups/${id}`)}
-          className="text-blue-600 hover:text-blue-700 mb-4 flex items-center"
+          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 flex items-center transition-colors"
         >
           <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -139,26 +145,26 @@ export default function AddExpensePage() {
           Back to Group
         </button>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold mb-6">Add Expense</h1>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 animate-slide-up">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Add Expense</h1>
 
-          <div className="flex border-b border-gray-200 mb-6">
+          <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
             <button
               onClick={() => setActiveTab('manual')}
-              className={`px-4 py-2 font-medium ${
+              className={`px-4 py-2 font-medium transition-colors ${
                 activeTab === 'manual'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
               }`}
             >
               Manual Entry
             </button>
             <button
               onClick={() => setActiveTab('scan')}
-              className={`px-4 py-2 font-medium ${
+              className={`px-4 py-2 font-medium transition-colors ${
                 activeTab === 'scan'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
               }`}
             >
               Scan Receipt
@@ -171,7 +177,7 @@ export default function AddExpensePage() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Description *
                   </label>
                   <input
@@ -179,14 +185,14 @@ export default function AddExpensePage() {
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Amount *
                     </label>
                     <input
@@ -195,20 +201,20 @@ export default function AddExpensePage() {
                       name="amount"
                       value={formData.amount}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Category
                     </label>
                     <select
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       <option value="food">Food</option>
                       <option value="utilities">Utilities</option>
@@ -221,7 +227,7 @@ export default function AddExpensePage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Date *
                     </label>
                     <input
@@ -229,20 +235,20 @@ export default function AddExpensePage() {
                       name="date"
                       value={formData.date}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Paid By *
                     </label>
                     <select
                       name="paid_by_member_id"
                       value={formData.paid_by_member_id}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       required
                     >
                       {group.members.map(member => (
@@ -255,29 +261,29 @@ export default function AddExpensePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Split Type
                   </label>
                   <div className="flex gap-4">
-                    <label className="flex items-center">
+                    <label className="flex items-center text-gray-900 dark:text-white cursor-pointer">
                       <input
                         type="radio"
                         name="split_type"
                         value="equal"
                         checked={formData.split_type === 'equal'}
                         onChange={handleInputChange}
-                        className="mr-2"
+                        className="mr-2 text-blue-600 focus:ring-blue-500"
                       />
                       Equal Split
                     </label>
-                    <label className="flex items-center">
+                    <label className="flex items-center text-gray-900 dark:text-white cursor-pointer">
                       <input
                         type="radio"
                         name="split_type"
                         value="custom"
                         checked={formData.split_type === 'custom'}
                         onChange={handleInputChange}
-                        className="mr-2"
+                        className="mr-2 text-blue-600 focus:ring-blue-500"
                       />
                       Custom Amounts
                     </label>
@@ -286,17 +292,17 @@ export default function AddExpensePage() {
 
                 {formData.split_type === 'equal' ? (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Split Between
                     </label>
                     <div className="space-y-2">
                       {group.members.map(member => (
-                        <label key={member.id} className="flex items-center">
+                        <label key={member.id} className="flex items-center text-gray-900 dark:text-white cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors">
                           <input
                             type="checkbox"
                             checked={selectedMembers.includes(member.id)}
                             onChange={() => handleMemberToggle(member.id)}
-                            className="mr-2"
+                            className="mr-2 text-blue-600 focus:ring-blue-500 rounded"
                           />
                           {member.name}
                         </label>
@@ -305,19 +311,19 @@ export default function AddExpensePage() {
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Custom Split Amounts
                     </label>
                     <div className="space-y-2">
                       {group.members.map(member => (
                         <div key={member.id} className="flex items-center gap-2">
-                          <span className="w-32 text-sm">{member.name}</span>
+                          <span className="w-32 text-sm text-gray-900 dark:text-white">{member.name}</span>
                           <input
                             type="number"
                             step="0.01"
                             value={customSplits[member.id] || ''}
                             onChange={(e) => handleCustomSplitChange(member.id, e.target.value)}
-                            className="flex-1 px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="0.00"
                           />
                         </div>
@@ -330,14 +336,14 @@ export default function AddExpensePage() {
                   <button
                     type="button"
                     onClick={() => navigate(`/groups/${id}`)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? 'Adding...' : 'Add Expense'}
                   </button>
