@@ -76,11 +76,11 @@ export default function NotificationsDropdown() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-fade-in">
+                <div className="fixed sm:absolute top-full left-0 right-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-80 max-w-[calc(100vw-2rem)] mx-4 sm:mx-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-fade-in">
                     <div className="p-3 border-b border-gray-200 dark:border-gray-700 font-semibold text-gray-900 dark:text-white">
                         Notifications
                     </div>
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="max-h-[70vh] sm:max-h-96 overflow-y-auto">
                         {notifications.length === 0 ? (
                             <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
                                 No notifications
@@ -89,9 +89,9 @@ export default function NotificationsDropdown() {
                             notifications.map((notification) => (
                                 <div
                                     key={notification.id}
-                                    className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors ${!notification.is_read ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                                    className={`p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors ${!notification.is_read ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                                 >
-                                    <p className="text-sm text-gray-800 dark:text-gray-200 mb-2">
+                                    <p className="text-sm text-gray-800 dark:text-gray-200 mb-2 break-words">
                                         {notification.type === 'invite' && (
                                             <>You have been invited to join a group.</>
                                         )}
@@ -107,13 +107,13 @@ export default function NotificationsDropdown() {
                                         )}
                                     </p>
 
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-wrap gap-2">
                                         {!notification.is_read && (
                                             <>
                                                 {notification.type === 'invite' && (
                                                     <button
                                                         onClick={() => handleAcceptInvite(notification)}
-                                                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition-colors"
+                                                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition-colors"
                                                     >
                                                         Accept
                                                     </button>
@@ -121,14 +121,14 @@ export default function NotificationsDropdown() {
                                                 {notification.type === 'settlement_request' && (
                                                     <button
                                                         onClick={() => handleConfirmSettlement(notification)}
-                                                        className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md transition-colors"
+                                                        className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md transition-colors"
                                                     >
                                                         Confirm
                                                     </button>
                                                 )}
                                                 <button
                                                     onClick={() => markAsRead(notification.id)}
-                                                    className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-2 py-1"
+                                                    className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-2 py-1.5"
                                                 >
                                                     Dismiss
                                                 </button>

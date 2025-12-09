@@ -1,53 +1,42 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const supabase = require('../supabaseClient');
+const db = require('../db');
+const { authenticateToken } = require('../middleware/auth');
 
 // GET /api/expenses/:expenseId/comments
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const { expenseId } = req.params;
-
-        // First verify user has access to this expense's group
-        const { data: expense, error: expError } = await supabase
-            .from('expenses')
-            .select('group_id')
-            .eq('id', expenseId)
-            .single();
-
-        if (expError || !expense) {
-            return res.status(404).json({ error: 'Expense not found' });
-        }
-
         const userId = req.user.id;
-        const { data: member, error: memberError } = await supabase
-            .from('group_members')
-            .select('id')
-            .eq('group_id', expense.group_id)
-            .eq('user_id', userId)
-            .single();
 
-        if (memberError || !member) {
-            return res.status(403).json({ error: 'Access denied' });
+        // 1. Verify user has access to the expense's group
+        // We join expenses -> groups -> group_members
+        const accessCheck = await db.query(`
+            SELECT e.id 
+            FROM expenses e
+            JOIN group_members gm ON e.group_id = gm.group_id
+            WHERE e.id = $1 AND gm.user_id = $2
+        `, [expenseId, userId]);
+
+        if (accessCheck.rows.length === 0) {
+            return res.status(403).json({ error: 'Access denied or expense not found' });
         }
 
-        const { data: comments, error } = await supabase
-            .from('comments')
-            .select(`
-        id,
-        text,
-        created_at,
-        member_id,
-        members (
-          id,
-          name
-        )
-      `)
-            .eq('expense_id', expenseId)
-            .order('created_at', { ascending: true });
+        // 2. Fetch comments with member details
+        const comments = await db.query(`
+            SELECT 
+                c.id,
+                c.text,
+                c.created_at,
+                c.member_id,
+                json_build_object('id', m.id, 'name', m.name) as members
+            FROM comments c
+            JOIN members m ON c.member_id = m.id
+            WHERE c.expense_id = $1
+            ORDER BY c.created_at ASC
+        `, [expenseId]);
 
-        if (error) throw error;
-
-        res.json(comments);
+        res.json(comments.rows);
     } catch (error) {
         console.error('Error fetching comments:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -55,60 +44,51 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/expenses/:expenseId/comments
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     try {
         const { expenseId } = req.params;
         const { text } = req.body;
+        const userId = req.user.id;
 
         if (!text || !text.trim()) {
             return res.status(400).json({ error: 'Comment text is required' });
         }
 
-        // Verify access and get member_id
-        const { data: expense, error: expError } = await supabase
-            .from('expenses')
-            .select('group_id')
-            .eq('id', expenseId)
-            .single();
+        // 1. Verify access and get the user's member_id for this group
+        const memberCheck = await db.query(`
+            SELECT m.id AS member_id
+            FROM expenses e
+            JOIN members m ON e.group_id = m.group_id
+            WHERE e.id = $1 AND m.user_id = $2
+        `, [expenseId, userId]);
 
-        if (expError || !expense) {
-            return res.status(404).json({ error: 'Expense not found' });
+        if (memberCheck.rows.length === 0) {
+            return res.status(403).json({ error: 'Access denied: You must be a member of this group' });
         }
 
-        const userId = req.user.id;
-        const { data: memberData, error: memberError } = await supabase
-            .from('members') // Get the actual member record for this group/user
-            .select('id')
-            .eq('group_id', expense.group_id)
-            .eq('user_id', userId)
-            .single();
+        const memberId = memberCheck.rows[0].member_id;
 
-        if (memberError || !memberData) {
-            return res.status(403).json({ error: 'Access denied - You must be a member of this group' });
-        }
+        // 2. Insert Comment
+        const newComment = await db.query(`
+            INSERT INTO comments (expense_id, member_id, text)
+            VALUES ($1, $2, $3)
+            RETURNING id, text, created_at, member_id
+        `, [expenseId, memberId, text.trim()]);
 
-        const { data: comment, error } = await supabase
-            .from('comments')
-            .insert({
-                expense_id: expenseId,
-                member_id: memberData.id,
-                text: text.trim()
-            })
-            .select(`
-        id,
-        text,
-        created_at,
-        member_id,
-        members (
-          id,
-          name
-        )
-      `)
-            .single();
+        // 3. Fetch full object for response (including member name) to match GET structure
+        const result = await db.query(`
+            SELECT 
+                c.id,
+                c.text,
+                c.created_at,
+                c.member_id,
+                json_build_object('id', m.id, 'name', m.name) as members
+            FROM comments c
+            JOIN members m ON c.member_id = m.id
+            WHERE c.id = $1
+        `, [newComment.rows[0].id]);
 
-        if (error) throw error;
-
-        res.status(201).json(comment);
+        res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error adding comment:', error);
         res.status(500).json({ error: 'Internal server error' });
