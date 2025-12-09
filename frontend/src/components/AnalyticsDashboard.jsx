@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { analyticsApi } from '../api/analytics';
-import CategoryPieChart from './charts/CategoryPieChart';
-import SpendingTrendChart from './charts/SpendingTrendChart';
+import CategoryPieChart from './graphs/CategoryPieChart';
+import SpendingTrendChart from './graphs/SpendingTrendChart';
 
 export default function AnalyticsDashboard({ groupId, currencyCode = 'USD' }) {
     const [categoryData, setCategoryData] = useState([]);
