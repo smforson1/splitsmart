@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { authenticateToken } = require('../middleware/auth');
+const logActivity = require('../utils/activityLogger');
+
 
 // POST /api/expenses - Create expense with splits
 router.post('/', authenticateToken, async (req, res) => {
   const client = await db.pool.connect();
-  
+
   try {
     const {
       group_id,
@@ -42,12 +44,12 @@ router.post('/', authenticateToken, async (req, res) => {
 
     // Calculate splits
     let splits = [];
-    
+
     if (split_type === 'equal') {
       // Equal split among specified members
       const memberIds = split_data;
       const splitAmount = (parseFloat(amount) / memberIds.length).toFixed(2);
-      
+
       for (const memberId of memberIds) {
         splits.push({
           expense_id: expense.id,
@@ -58,12 +60,12 @@ router.post('/', authenticateToken, async (req, res) => {
     } else if (split_type === 'custom') {
       // Custom split amounts
       const totalSplit = split_data.reduce((sum, s) => sum + parseFloat(s.amount), 0);
-      
+
       if (Math.abs(totalSplit - parseFloat(amount)) > 0.01) {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: 'Split amounts must equal total amount' });
       }
-      
+
       splits = split_data.map(s => ({
         expense_id: expense.id,
         member_id: s.member_id,
@@ -92,6 +94,16 @@ router.post('/', authenticateToken, async (req, res) => {
        GROUP BY e.id`,
       [expense.id]
     );
+
+    // Log activity
+    await logActivity({
+      groupId: group_id,
+      actorId: paid_by_member_id,
+      actionType: 'CREATE_EXPENSE',
+      entityType: 'expense',
+      entityId: expense.id,
+      payload: { description, amount, category }
+    });
 
     res.status(201).json(completeExpense.rows[0]);
   } catch (error) {
@@ -186,7 +198,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // PUT /api/expenses/:id - Update expense
 router.put('/:id', authenticateToken, async (req, res) => {
   const client = await db.pool.connect();
-  
+
   try {
     const { id } = req.params;
     const {
@@ -219,11 +231,11 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     // Calculate new splits
     let splits = [];
-    
+
     if (split_type === 'equal') {
       const memberIds = split_data;
       const splitAmount = (parseFloat(amount) / memberIds.length).toFixed(2);
-      
+
       for (const memberId of memberIds) {
         splits.push({ member_id: memberId, amount_owed: splitAmount });
       }
@@ -251,6 +263,16 @@ router.put('/:id', authenticateToken, async (req, res) => {
        GROUP BY e.id`,
       [id]
     );
+
+    // Log activity
+    await logActivity({
+      groupId: result.rows[0].group_id,
+      actorId: paid_by_member_id,
+      actionType: 'UPDATE_EXPENSE',
+      entityType: 'expense',
+      entityId: id,
+      payload: { description, amount }
+    });
 
     res.json(result.rows[0]);
   } catch (error) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { expensesApi } from '../api/groups';
 import toast from 'react-hot-toast';
+import CommentsSection from '../components/CommentsSection';
 
 export default function ExpenseDetailPage() {
   const { id } = useParams();
@@ -144,6 +145,8 @@ export default function ExpenseDetailPage() {
               ))}
             </div>
           </div>
+
+          <CommentsSection expenseId={expense.id} />
         </div>
       </div>
     </div>

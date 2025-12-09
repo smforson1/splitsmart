@@ -10,6 +10,7 @@ CREATE TABLE groups (
   name VARCHAR(255) NOT NULL,
   created_by_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
+  currency_code VARCHAR(3) DEFAULT 'USD',
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -65,6 +66,27 @@ CREATE TABLE group_members (
   role VARCHAR(20) DEFAULT 'member', -- 'admin' or 'member'
   joined_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(group_id, user_id)
+);
+
+-- Table: group_invites
+CREATE TABLE group_invites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id UUID REFERENCES groups(id) ON DELETE CASCADE,
+  email VARCHAR(255) NOT NULL,
+  invited_by_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  status VARCHAR(20) DEFAULT 'pending', -- pending, accepted, declined
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(group_id, email)
+);
+
+-- Table: notifications
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  type VARCHAR(50) NOT NULL, -- invite, settlement_request, settlement_confirmed
+  payload JSONB NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Create indexes for better query performance

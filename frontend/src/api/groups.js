@@ -31,4 +31,5 @@ export const balancesApi = {
 export const settlementsApi = {
   getAll: (params) => apiClient.get('/api/settlements', { params }),
   create: (data) => apiClient.post('/api/settlements', data),
+  confirm: (id) => apiClient.put(`/api/settlements/${id}/confirm`),
 };

@@ -1,4 +1,6 @@
-export default function BalanceSummary({ balances, onSettle, onExport }) {
+import { formatCurrency } from '../utils/currency';
+
+export default function BalanceSummary({ balances, onSettle, onExport, currencyCode = 'USD' }) {
   const { simplified_debts } = balances;
 
   if (simplified_debts.length === 0) {
@@ -56,8 +58,8 @@ export default function BalanceSummary({ balances, onSettle, onExport }) {
       </div>
       <div className="space-y-3">
         {simplified_debts.map((debt, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="group flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-750 rounded-xl p-3 sm:p-5 hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-600 gap-3"
             style={{ animationDelay: `${index * 100}ms` }}
           >
@@ -84,7 +86,7 @@ export default function BalanceSummary({ balances, onSettle, onExport }) {
               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              ${debt.amount.toFixed(2)}
+              {formatCurrency(debt.amount, currencyCode)}
             </div>
           </div>
         ))}

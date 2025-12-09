@@ -6,16 +6,16 @@ const { authenticateToken } = require('../middleware/auth');
 // POST /api/groups - Create new group
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, currency_code = 'USD' } = req.body;
     const userId = req.user.id;
-    
+
     if (!name || name.trim() === '') {
       return res.status(400).json({ error: 'Group name is required' });
     }
 
     const result = await db.query(
-      'INSERT INTO groups (name, created_by_user_id) VALUES ($1, $2) RETURNING *',
-      [name.trim(), userId]
+      'INSERT INTO groups (name, created_by_user_id, currency_code) VALUES ($1, $2, $3) RETURNING *',
+      [name.trim(), userId, currency_code]
     );
 
     const groupId = result.rows[0].id;

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
+import { formatCurrency } from '../utils/currency';
 
-export default function ExpenseStatistics({ expenses, members }) {
+export default function ExpenseStatistics({ expenses, members, currencyCode = 'USD' }) {
   const stats = useMemo(() => {
     if (!expenses || expenses.length === 0) return null;
 
@@ -93,12 +94,12 @@ export default function ExpenseStatistics({ expenses, members }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
           <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-1">Total Spent</p>
-          <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">${stats.totalSpent.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{formatCurrency(stats.totalSpent, currencyCode)}</p>
         </div>
 
         <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
           <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-1">Avg Expense</p>
-          <p className="text-2xl font-bold text-green-900 dark:text-green-100">${stats.avgExpense.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-green-900 dark:text-green-100">{formatCurrency(stats.avgExpense, currencyCode)}</p>
         </div>
 
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
@@ -108,7 +109,7 @@ export default function ExpenseStatistics({ expenses, members }) {
 
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-4 border border-orange-200 dark:border-orange-800">
           <p className="text-sm text-orange-600 dark:text-orange-400 font-medium mb-1">Last 7 Days</p>
-          <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">${stats.last7Total.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">{formatCurrency(stats.last7Total, currencyCode)}</p>
           {stats.trend !== 0 && (
             <p className={`text-xs mt-1 flex items-center gap-1 ${stats.trend > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
               {stats.trend > 0 ? '↑' : '↓'} {Math.abs(stats.trend).toFixed(1)}% vs prev week
@@ -126,12 +127,12 @@ export default function ExpenseStatistics({ expenses, members }) {
             .map(([category, amount]) => {
               const percentage = (amount / stats.totalSpent) * 100;
               const colors = categoryColors[category] || categoryColors.other;
-              
+
               return (
                 <div key={category} className="group">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">{category}</span>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">${amount.toFixed(2)} ({percentage.toFixed(1)}%)</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(amount, currencyCode)} ({percentage.toFixed(1)}%)</span>
                   </div>
                   <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
@@ -160,7 +161,7 @@ export default function ExpenseStatistics({ expenses, members }) {
                     <p className="text-xs text-gray-500 dark:text-gray-400">{spender.count} expenses</p>
                   </div>
                 </div>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">${spender.amount.toFixed(2)}</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(spender.amount, currencyCode)}</p>
               </div>
             );
           })}

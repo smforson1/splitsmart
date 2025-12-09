@@ -1,31 +1,55 @@
 import { useNavigate } from 'react-router-dom';
+import { formatCurrency } from '../utils/currency';
+import { useSwipeable } from 'react-swipeable';
+import { expensesApi } from '../api/groups';
+import toast from 'react-hot-toast';
 
-export default function ExpenseCard({ expense }) {
+export default function ExpenseCard({ expense, currencyCode = 'USD', onUpdate }) {
   const navigate = useNavigate();
 
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (confirm(`Delete "${expense.description}"?`)) {
+        expensesApi.delete(expense.id)
+          .then(() => {
+            toast.success('Expense deleted');
+            if (onUpdate) onUpdate();
+          })
+          .catch(() => toast.error('Failed to delete'));
+      }
+    },
+    onSwipedRight: () => {
+      // Navigate to edit (or detail for now since we don't have update form yet)
+      navigate(`/expenses/${expense.id}`);
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true
+  });
+
+
   const categoryConfig = {
-    food: { 
-      bg: 'bg-orange-100 dark:bg-orange-900/30', 
+    food: {
+      bg: 'bg-orange-100 dark:bg-orange-900/30',
       text: 'text-orange-800 dark:text-orange-300',
       icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
     },
-    utilities: { 
-      bg: 'bg-blue-100 dark:bg-blue-900/30', 
+    utilities: {
+      bg: 'bg-blue-100 dark:bg-blue-900/30',
       text: 'text-blue-800 dark:text-blue-300',
       icon: 'M13 10V3L4 14h7v7l9-11h-7z'
     },
-    entertainment: { 
-      bg: 'bg-purple-100 dark:bg-purple-900/30', 
+    entertainment: {
+      bg: 'bg-purple-100 dark:bg-purple-900/30',
       text: 'text-purple-800 dark:text-purple-300',
       icon: 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
     },
-    transportation: { 
-      bg: 'bg-green-100 dark:bg-green-900/30', 
+    transportation: {
+      bg: 'bg-green-100 dark:bg-green-900/30',
       text: 'text-green-800 dark:text-green-300',
       icon: 'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2'
     },
-    other: { 
-      bg: 'bg-gray-100 dark:bg-gray-700', 
+    other: {
+      bg: 'bg-gray-100 dark:bg-gray-700',
       text: 'text-gray-800 dark:text-gray-300',
       icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6'
     },
@@ -35,9 +59,14 @@ export default function ExpenseCard({ expense }) {
 
   return (
     <div
+      {...handlers}
       onClick={() => navigate(`/expenses/${expense.id}`)}
-      className="group border border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-5 hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-gray-800 hover:scale-[1.02] hover:-translate-y-1"
+      className="group border border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-5 hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-gray-800 hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden"
     >
+      {/* Swipe hints */}
+      <div className="absolute inset-y-0 left-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-50 transition-opacity" />
+      <div className="absolute inset-y-0 right-0 w-1 bg-red-500 opacity-0 group-hover:opacity-50 transition-opacity" />
+
       <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
         <div className="flex-1 min-w-0 w-full">
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -72,7 +101,7 @@ export default function ExpenseCard({ expense }) {
         </div>
         <div className="text-left sm:text-right flex-shrink-0 w-full sm:w-auto flex sm:flex-col justify-between sm:justify-start items-center sm:items-end">
           <p className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-            ${parseFloat(expense.amount).toFixed(2)}
+            {formatCurrency(expense.amount, currencyCode)}
           </p>
           <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-1">
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

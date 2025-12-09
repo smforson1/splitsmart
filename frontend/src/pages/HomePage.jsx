@@ -5,12 +5,15 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import GroupCard from '../components/GroupCard';
 import ThemeToggle from '../components/ThemeToggle';
+import NotificationsDropdown from '../components/NotificationsDropdown';
+import { CURRENCIES } from '../utils/currency';
 
 export default function HomePage() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
@@ -48,10 +51,14 @@ export default function HomePage() {
     }
 
     try {
-      const response = await groupsApi.create({ name: newGroupName });
+      const response = await groupsApi.create({
+        name: newGroupName,
+        currency_code: selectedCurrency
+      });
       toast.success('Group created!');
       setShowModal(false);
       setNewGroupName('');
+      setSelectedCurrency('USD');
       navigate(`/groups/${response.data.id}`);
     } catch (error) {
       toast.error('Failed to create group');
@@ -89,6 +96,7 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                <NotificationsDropdown />
                 <ThemeToggle />
                 <button
                   onClick={handleSignOut}
@@ -133,6 +141,7 @@ export default function HomePage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Signed in as</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.email}</p>
               </div>
+              <NotificationsDropdown />
               <ThemeToggle />
               <button
                 onClick={handleSignOut}
@@ -209,12 +218,31 @@ export default function HomePage() {
                   autoFocus
                 />
               </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Currency
+                </label>
+                <select
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all appearance-none"
+                >
+                  {CURRENCIES.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.symbol} - {currency.name} ({currency.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setShowModal(false);
                     setNewGroupName('');
+                    setSelectedCurrency('USD');
                   }}
                   className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all"
                 >
