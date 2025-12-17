@@ -7,6 +7,10 @@ const logActivity = require('../utils/activityLogger');
 
 // POST /api/settlements - Record a settlement/payment
 router.post('/', authenticateToken, async (req, res) => {
+  console.log('🔄 Settlement POST request received');
+  console.log('Request body:', req.body);
+  console.log('User from auth:', req.user?.id);
+  
   try {
     const {
       group_id,
@@ -17,26 +21,36 @@ router.post('/', authenticateToken, async (req, res) => {
       notes
     } = req.body;
 
+    console.log('Extracted data:', { group_id, from_member_id, to_member_id, amount, date, notes });
+
     // Validation
     if (!group_id || !from_member_id || !to_member_id || !amount || !date) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      console.log('❌ Missing required fields validation failed');
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        received: { group_id, from_member_id, to_member_id, amount, date }
+      });
     }
 
     if (amount <= 0) {
+      console.log('❌ Amount validation failed:', amount);
       return res.status(400).json({ error: 'Amount must be positive' });
     }
 
     if (from_member_id === to_member_id) {
+      console.log('❌ Same member validation failed');
       return res.status(400).json({ error: 'Cannot settle with yourself' });
     }
 
-    console.log('Creating settlement with data:', { group_id, from_member_id, to_member_id, amount, date, notes });
+    console.log('✅ All validations passed, inserting into database...');
     
     const result = await db.query(
       `INSERT INTO settlements (group_id, from_member_id, to_member_id, amount, date, notes, status)
        VALUES ($1, $2, $3, $4, $5, $6, 'pending') RETURNING *`,
       [group_id, from_member_id, to_member_id, amount, date, notes || null]
     );
+
+    console.log('✅ Settlement inserted successfully:', result.rows[0]);
 
     const settlement = result.rows[0];
 
@@ -64,8 +78,18 @@ router.post('/', authenticateToken, async (req, res) => {
 
     res.status(201).json(settlement);
   } catch (error) {
-    console.error('Error creating settlement:', error);
-    res.status(500).json({ error: 'Failed to create settlement' });
+    console.error('❌ Error creating settlement:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      error: 'Failed to create settlement',
+      details: error.message,
+      code: error.code
+    });
   }
 });
 

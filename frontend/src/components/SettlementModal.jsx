@@ -23,21 +23,30 @@ export default function SettlementModal({ groupId, balances, members, onClose, o
     }
 
     setLoading(true);
+    
+    const settlementData = {
+      group_id: groupId,
+      from_member_id: selectedDebt.from_member_id,
+      to_member_id: selectedDebt.to_member_id,
+      amount: parseFloat(amount),
+      date: new Date().toISOString().split('T')[0],
+      notes,
+    };
+    
+    console.log('🔄 Sending settlement data:', settlementData);
+    console.log('Selected debt:', selectedDebt);
+    
     try {
-      await settlementsApi.create({
-        group_id: groupId,
-        from_member_id: selectedDebt.from_member_id,
-        to_member_id: selectedDebt.to_member_id,
-        amount: parseFloat(amount),
-        date: new Date().toISOString().split('T')[0],
-        notes,
-      });
+      const response = await settlementsApi.create(settlementData);
+      console.log('✅ Settlement created successfully:', response);
       toast.success('Settlement recorded!');
       onSuccess();
       onClose();
     } catch (error) {
-      toast.error('Failed to record settlement');
-      console.error(error);
+      console.error('❌ Settlement creation failed:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      toast.error(`Failed to record settlement: ${error.response?.data?.error || error.message}`);
     } finally {
       setLoading(false);
     }
