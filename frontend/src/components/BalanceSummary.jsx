@@ -1,6 +1,6 @@
 import { formatCurrency } from '../utils/currency';
 
-export default function BalanceSummary({ balances, onSettle, onExport, currencyCode = 'USD' }) {
+export default function BalanceSummary({ balances, onSettle, onExport, currencyCode = 'GHS' }) {
   const { simplified_debts } = balances;
 
   if (simplified_debts.length === 0) {

@@ -3,7 +3,7 @@ import { recurringApi } from '../api/recurring';
 import toast from 'react-hot-toast';
 import { formatCurrency } from '../utils/currency';
 
-export default function RecurringList({ groupId, members, currencyCode = 'USD' }) {
+export default function RecurringList({ groupId, members, currencyCode = 'GHS' }) {
     const [recurring, setRecurring] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);

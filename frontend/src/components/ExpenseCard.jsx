@@ -4,7 +4,7 @@ import { useSwipeable } from 'react-swipeable';
 import { expensesApi } from '../api/groups';
 import toast from 'react-hot-toast';
 
-export default function ExpenseCard({ expense, currencyCode = 'USD', onUpdate }) {
+export default function ExpenseCard({ expense, currencyCode = 'GHS', onUpdate }) {
   const navigate = useNavigate();
 
   const handlers = useSwipeable({

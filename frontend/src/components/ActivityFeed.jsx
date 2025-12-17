@@ -15,7 +15,7 @@ function formatTimeAgo(dateString) {
     return date.toLocaleDateString();
 }
 
-export default function ActivityFeed({ groupId, currencyCode = 'USD' }) {
+export default function ActivityFeed({ groupId, currencyCode = 'GHS' }) {
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
 

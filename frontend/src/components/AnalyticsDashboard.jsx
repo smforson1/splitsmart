@@ -3,7 +3,7 @@ import { analyticsApi } from '../api/analytics';
 import CategoryPieChart from './graphs/CategoryPieChart';
 import SpendingTrendChart from './graphs/SpendingTrendChart';
 
-export default function AnalyticsDashboard({ groupId, currencyCode = 'USD' }) {
+export default function AnalyticsDashboard({ groupId, currencyCode = 'GHS' }) {
     const [categoryData, setCategoryData] = useState([]);
     const [trendData, setTrendData] = useState([]);
     const [loading, setLoading] = useState(true);

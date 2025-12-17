@@ -2,7 +2,7 @@ import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '../../utils/currency';
 
-export default function SpendingTrendChart({ data, currencyCode = 'USD' }) {
+export default function SpendingTrendChart({ data, currencyCode = 'GHS' }) {
     if (!data || data.length === 0) return <div className="text-center text-gray-500">No data available</div>;
 
     return (

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { settlementsApi } from '../api/groups';
 import toast from 'react-hot-toast';
+import PaystackPaymentButton from './PaystackPaymentButton';
 
 export default function SettlementModal({ groupId, balances, members, onClose, onSuccess }) {
   const [selectedDebt, setSelectedDebt] = useState(null);
@@ -113,6 +114,44 @@ export default function SettlementModal({ groupId, balances, members, onClose, o
                   placeholder="e.g., Cash payment, Venmo, etc."
                 />
               </div>
+
+              {/* Paystack Payment Integration */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  💳 Pay with Paystack
+                </label>
+                <PaystackPaymentButton
+                  amount={parseFloat(amount) * 100} // Paystack uses pesewas (amount in kobo/cents)
+                  email={selectedDebt.to_member_email || 'user@example.com'}
+                  currency="GHS"
+                  reference={`splitsmart_${Date.now()}`}
+                  onSuccess={(reference) => {
+                    console.log('Payment successful:', reference);
+                    setNotes(`Paid via Paystack - Ref: ${reference.reference}`);
+                    toast.success('Payment successful! Settlement will be recorded.');
+                  }}
+                  onClose={() => {
+                    console.log('Payment closed');
+                  }}
+                  metadata={{
+                    custom_fields: [
+                      {
+                        display_name: "Purpose",
+                        variable_name: "purpose",
+                        value: "SplitSmart Expense Settlement"
+                      },
+                      {
+                        display_name: "Recipient",
+                        variable_name: "recipient",
+                        value: selectedDebt.to_member_name
+                      }
+                    ]
+                  }}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  💡 Pay securely with mobile money, bank transfer, or card via Paystack
+                </p>
+              </div>
             </>
           )}
 
@@ -130,7 +169,7 @@ export default function SettlementModal({ groupId, balances, members, onClose, o
               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
               disabled={loading || !selectedDebt}
             >
-              {loading ? 'Processing...' : 'Request Settlement'}
+              {loading ? 'Processing...' : 'Record Settlement'}
             </button>
           </div>
         </form>

@@ -4,7 +4,7 @@
  * @param {string} currencyCode - The ISO currency code (e.g., 'USD', 'EUR', 'GBP')
  * @returns {string} Formatted string
  */
-export const formatCurrency = (amount, currencyCode = 'USD') => {
+export const formatCurrency = (amount, currencyCode = 'GHS') => {
     try {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -19,9 +19,13 @@ export const formatCurrency = (amount, currencyCode = 'USD') => {
 };
 
 export const CURRENCIES = [
+    { code: 'GHS', symbol: '₵', name: 'Ghanaian Cedi' },
     { code: 'USD', symbol: '$', name: 'US Dollar' },
     { code: 'EUR', symbol: '€', name: 'Euro' },
     { code: 'GBP', symbol: '£', name: 'British Pound' },
+    { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
+    { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
+    { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
     { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
     { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
     { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },

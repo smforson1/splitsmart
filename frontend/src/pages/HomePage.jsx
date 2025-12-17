@@ -13,7 +13,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const [selectedCurrency, setSelectedCurrency] = useState('GHS');
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
@@ -58,7 +58,7 @@ export default function HomePage() {
       toast.success('Group created!');
       setShowModal(false);
       setNewGroupName('');
-      setSelectedCurrency('USD');
+      setSelectedCurrency('GHS');
       navigate(`/groups/${response.data.id}`);
     } catch (error) {
       toast.error('Failed to create group');
@@ -242,7 +242,7 @@ export default function HomePage() {
                   onClick={() => {
                     setShowModal(false);
                     setNewGroupName('');
-                    setSelectedCurrency('USD');
+                    setSelectedCurrency('GHS');
                   }}
                   className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all"
                 >

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { formatCurrency } from '../utils/currency';
 
-export default function ExpenseStatistics({ expenses, members, currencyCode = 'USD' }) {
+export default function ExpenseStatistics({ expenses, members, currencyCode = 'GHS' }) {
   const stats = useMemo(() => {
     if (!expenses || expenses.length === 0) return null;
 

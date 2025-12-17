@@ -4,7 +4,7 @@ import { formatCurrency } from '../../utils/currency';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
-export default function CategoryPieChart({ data, currencyCode = 'USD' }) {
+export default function CategoryPieChart({ data, currencyCode = 'GHS' }) {
     if (!data || data.length === 0) return <div className="text-center text-gray-500">No data available</div>;
 
     return (
