@@ -59,8 +59,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signInWithGoogle = async () => {
-    // Use environment variable for redirect URL, fallback to current origin
-    const redirectUrl = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
+    // Use environment variable for redirect URL, fallback to production URL
+    const redirectUrl = import.meta.env.VITE_FRONTEND_URL || 
+                       (window.location.hostname === 'localhost' 
+                         ? 'http://localhost:5173' 
+                         : 'https://splitsmart-seven.vercel.app');
+    
+    console.log('Google OAuth redirect URL:', redirectUrl);
     
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

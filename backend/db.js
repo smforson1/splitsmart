@@ -18,11 +18,30 @@ try {
   console.log('Raw DATABASE_URL format:', process.env.DATABASE_URL.substring(0, 50) + '...');
 }
 
+// Handle special characters in connection string
+let connectionConfig;
+try {
+  // Try to parse as URL first
+  const url = new URL(process.env.DATABASE_URL);
+  connectionConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  };
+} catch (urlError) {
+  console.log('URL parsing failed, using connectionString directly');
+  // If URL parsing fails due to special characters, use connectionString directly
+  connectionConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  };
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  },
+  ...connectionConfig,
   // Connection options to improve reliability on Render
   max: 20,
   idleTimeoutMillis: 30000,
