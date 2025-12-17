@@ -2,6 +2,20 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 
+// Check for required environment variables
+if (!process.env.SUPABASE_URL) {
+  console.error('❌ SUPABASE_URL environment variable is missing');
+  console.error('Available env vars:', Object.keys(process.env).filter(key => key.includes('SUPABASE')));
+  throw new Error('SUPABASE_URL is required');
+}
+
+if (!process.env.SUPABASE_ANON_KEY) {
+  console.error('❌ SUPABASE_ANON_KEY environment variable is missing');
+  throw new Error('SUPABASE_ANON_KEY is required');
+}
+
+console.log('✅ Supabase URL found:', process.env.SUPABASE_URL.substring(0, 30) + '...');
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY

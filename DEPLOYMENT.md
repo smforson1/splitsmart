@@ -164,6 +164,7 @@ Click **"Environment Variables"** and add:
 VITE_API_URL=https://your-backend-url.onrender.com
 VITE_SUPABASE_URL=https://[PROJECT-REF].supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+VITE_FRONTEND_URL=https://your-app.vercel.app
 ```
 
 **Critical:** Replace `your-backend-url.onrender.com` with your actual Render backend URL from Step 2.5!
@@ -202,22 +203,65 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
    - `http://localhost:5173/**` (for local development)
 4. Click **"Save"**
 
-### 4.3 Optional: Setup Google OAuth
+### 4.3 Setup Google OAuth (Recommended)
 
-If you want Google sign-in:
+Your SplitSmart app already supports Google authentication! Here's how to enable it:
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project or select existing
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials
-5. Add authorized origins:
-   - `https://[PROJECT-REF].supabase.co`
-   - `https://splitsmart.vercel.app`
-6. Add redirect URIs:
-   - `https://[PROJECT-REF].supabase.co/auth/v1/callback`
-7. Copy Client ID and Client Secret
-8. In Supabase, go to **Authentication** → **Providers**
-9. Enable **Google** and add your credentials
+#### 4.3.1 Create Google OAuth Credentials
+
+1. **Go to Google Cloud Console**:
+   - Visit [https://console.cloud.google.com](https://console.cloud.google.com)
+   - Sign in with your Google account
+
+2. **Create or Select Project**:
+   - Click the project dropdown at the top
+   - Either select an existing project or click "New Project"
+   - If creating new: Name it "SplitSmart" and click "Create"
+
+3. **Enable Google+ API**:
+   - Go to "APIs & Services" → "Library"
+   - Search for "Google+ API" 
+   - Click on it and press "Enable"
+
+4. **Configure OAuth Consent Screen** (if first time):
+   - Go to "APIs & Services" → "OAuth consent screen"
+   - Choose "External" user type
+   - Fill in required fields:
+     - **App name**: SplitSmart
+     - **User support email**: Your email
+     - **Developer contact information**: Your email
+   - Save and continue through all steps
+
+5. **Create OAuth Credentials**:
+   - Go to "APIs & Services" → "Credentials"
+   - Click "Create Credentials" → "OAuth 2.0 Client IDs"
+   - **Application type**: Web application
+   - **Name**: SplitSmart Web Client
+   - **Authorized JavaScript origins**:
+     - `http://localhost:5173` (for development)
+     - `https://your-app.vercel.app` (replace with your actual Vercel URL)
+   - **Authorized redirect URIs**:
+     - `https://your-supabase-project.supabase.co/auth/v1/callback`
+   - Click "Create"
+
+6. **Save Credentials**:
+   - Copy the **Client ID** and **Client Secret**
+   - You'll need these for Supabase
+
+#### 4.3.2 Configure Supabase for Google Auth
+
+1. **In Supabase Dashboard**:
+   - Go to **Authentication** → **Providers**
+   - Find "Google" in the list and toggle it **ON**
+
+2. **Enter Google Credentials**:
+   - **Client ID**: Paste from Google Cloud Console
+   - **Client Secret**: Paste from Google Cloud Console
+   - Click **"Save"**
+
+3. **Test Google Auth**:
+   - Your login and signup pages already have "Continue with Google" buttons
+   - Users can now sign in with their Google accounts!
 
 ## ✅ Step 5: Production Testing
 
