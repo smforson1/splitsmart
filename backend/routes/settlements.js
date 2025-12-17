@@ -30,6 +30,8 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Cannot settle with yourself' });
     }
 
+    console.log('Creating settlement with data:', { group_id, from_member_id, to_member_id, amount, date, notes });
+    
     const result = await db.query(
       `INSERT INTO settlements (group_id, from_member_id, to_member_id, amount, date, notes, status)
        VALUES ($1, $2, $3, $4, $5, $6, 'pending') RETURNING *`,
@@ -109,15 +111,19 @@ router.put('/:id/confirm', authenticateToken, async (req, res) => {
       console.warn('Failed to notify payer:', err.message);
     }
 
-    // Log activity
-    await logActivity({
-      groupId: result.rows[0].group_id,
-      actorId: result.rows[0].to_member_id, // The person who confirmed (received)
-      actionType: 'SETTLEMENT_CONFIRMED',
-      entityType: 'settlement',
-      entityId: id,
-      payload: { amount: result.rows[0].amount }
-    });
+    // Log activity (optional - don't fail if activities table doesn't exist)
+    try {
+      await logActivity({
+        groupId: result.rows[0].group_id,
+        actorId: result.rows[0].to_member_id, // The person who confirmed (received)
+        actionType: 'SETTLEMENT_CONFIRMED',
+        entityType: 'settlement',
+        entityId: id,
+        payload: { amount: result.rows[0].amount }
+      });
+    } catch (activityError) {
+      console.warn('Failed to log activity:', activityError.message);
+    }
 
     res.json(result.rows[0]);
   } catch (error) {
