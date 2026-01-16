@@ -13,8 +13,8 @@ export default function PaystackPaymentButton({
   const [loading, setLoading] = useState(false);
 
   const handlePayment = () => {
-    if (!email || email === 'user@example.com') {
-      alert('Recipient email is missing. Please ensure the member has a registered account.');
+    if (!email || email.trim() === '') {
+      alert('Please enter a recipient email for the transaction receipt.');
       return;
     }
 
