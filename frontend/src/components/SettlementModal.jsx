@@ -8,12 +8,14 @@ export default function SettlementModal({ groupId, balances, members, onClose, o
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [manualEmail, setManualEmail] = useState('');
 
   const { simplified_debts } = balances;
 
   const handleSelectDebt = (debt) => {
     setSelectedDebt(debt);
     setAmount(debt.amount.toFixed(2));
+    setManualEmail(debt.to_member_email || '');
   };
 
   const handleSubmit = async (e, paystackRef = null) => {
@@ -102,9 +104,14 @@ export default function SettlementModal({ groupId, balances, members, onClose, o
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Recipient Email
                 </label>
-                <div className="px-4 py-2 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 truncate">
-                  {selectedDebt.to_member_email || 'No email found'}
-                </div>
+                <input
+                  type="email"
+                  value={manualEmail}
+                  onChange={(e) => setManualEmail(e.target.value)}
+                  placeholder="Receipt email"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                  title={selectedDebt.to_member_email ? "Member email found" : "Enter receipt email for unregistered member"}
+                />
               </div>
             </div>
 
@@ -118,7 +125,7 @@ export default function SettlementModal({ groupId, balances, members, onClose, o
               </h3>
               <PaystackPaymentButton
                 amount={Math.round(parseFloat(amount) * 100)}
-                email={selectedDebt.to_member_email}
+                email={manualEmail}
                 currency="GHS"
                 reference={`ss_${Date.now()}`}
                 onSuccess={(res) => handleSubmit(null, res.reference)}
