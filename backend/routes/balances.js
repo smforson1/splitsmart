@@ -26,16 +26,21 @@ router.get('/:groupId', authenticateToken, async (req, res) => {
       [groupId]
     );
 
-    // Get all members
+    // Get all members with their emails from auth.users
     const membersResult = await db.query(
-      'SELECT id, name FROM members WHERE group_id = $1',
+      `SELECT m.id, m.name, u.email 
+       FROM members m 
+       LEFT JOIN auth.users u ON m.user_id = u.id 
+       WHERE m.group_id = $1`,
       [groupId]
     );
 
     // Initialize balances for all members
     const balances = {};
+    const memberEmails = {};
     membersResult.rows.forEach(member => {
       balances[member.id] = { balance: 0, name: member.name };
+      memberEmails[member.id] = member.email;
     });
 
     // Calculate balances from expenses
@@ -44,7 +49,7 @@ router.get('/:groupId', authenticateToken, async (req, res) => {
         // Person who paid gets credited
         balances[row.paid_by_member_id].balance += parseFloat(row.amount_owed || 0);
       }
-      
+
       if (row.split_member_id && balances[row.split_member_id]) {
         // Person in split gets debited
         balances[row.split_member_id].balance -= parseFloat(row.amount_owed || 0);
@@ -100,6 +105,7 @@ router.get('/:groupId', authenticateToken, async (req, res) => {
         from_member_name: debtor.name,
         to_member_id: creditor.member_id,
         to_member_name: creditor.name,
+        to_member_email: memberEmails[creditor.member_id],
         amount: parseFloat(settleAmount.toFixed(2))
       });
 
